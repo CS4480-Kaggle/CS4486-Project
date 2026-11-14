@@ -1,4 +1,4 @@
-# CS4486 Mini Project: Statoil/C-CORE Iceberg Classification
+# CS4486 Project: Statoil/C-CORE Iceberg Classification
 
 This repository integrates the three model tracks developed for the CS4486 project:
 
@@ -6,9 +6,6 @@ This repository integrates the three model tracks developed for the CS4486 proje
 - Model B: ImageNet-pretrained ResNet18 for 75 x 75 SAR images;
 - Model C: multi-seed LightGBM with fold-safe PCA features;
 - Final ensemble: equal averaging, cross-fitted static blending, and cross-fitted logistic stacking.
-
-Raw Kaggle data is not committed to Git. All formal experiments reuse the same
-stratified five-fold split and are evaluated with out-of-fold log loss.
 
 ## Final results
 
