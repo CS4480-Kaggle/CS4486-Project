@@ -126,30 +126,15 @@ def build_seen_mask(c1e, y, folds, train_angle, test_angle):
         tr = np.where(folds != fold)[0]
         va = np.where(folds == fold)[0]
 
-        mapping, global_prior = c1e.fit_group_mapping(
-            train_angle[tr],
-            y[tr],
-        )
+        mapping, global_prior = c1e.fit_group_mapping(train_angle[tr], y[tr])
 
-        vg = c1e.encode_group_features(
-            train_angle[va],
-            mapping,
-            global_prior,
-        )
+        vg = c1e.encode_group_features(train_angle[va], mapping, global_prior)
 
-        tg = c1e.encode_group_features(
-            test_angle,
-            mapping,
-            global_prior,
-        )
+        tg = c1e.encode_group_features(test_angle, mapping, global_prior)
 
-        oof_seen[va] = (
-            vg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5
-        )
+        oof_seen[va] = (vg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5)
 
-        test_seen[fold] = (
-            tg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5
-        )
+        test_seen[fold] = (tg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5)
 
     return oof_seen, float(test_seen.mean())
 
@@ -247,7 +232,7 @@ def train_missing_c4_seeds(
                 y,
                 folds,
                 train_angle,
-                test_angle,
+                test_angle
             )
 
             va = result["outer_valid_idx"]
@@ -262,7 +247,7 @@ def train_missing_c4_seeds(
                 "unseen_observed_gated_log_loss":
                     result["unseen_observed_loss"],
                 "test_like_observed_reweighted_log_loss":
-                    result["test_like"],
+                    result["test_like"]
             })
 
             print(
@@ -288,14 +273,14 @@ def train_missing_c4_seeds(
             "target": y,
             "prediction": poof,
             "model_name": "lightgbm_c",
-            "run_id": run_id,
+            "run_id": run_id
         }).to_csv(oof_path(run_id), index=False)
 
         pd.DataFrame({
             "id": test_ids,
             "prediction": ptest,
             "model_name": "lightgbm_c",
-            "run_id": run_id,
+            "run_id": run_id
         }).to_csv(test_path(run_id), index=False)
 
     pd.DataFrame(fold_rows).to_csv(FOLD_PATH, index=False)
@@ -313,15 +298,8 @@ def main():
 
     train_df, test_df, train_ids, test_ids, y, folds = c1e.load_data()
 
-    train_angle = pd.to_numeric(
-        train_df["inc_angle"],
-        errors="coerce",
-    ).to_numpy(dtype=np.float64)
-
-    test_angle = pd.to_numeric(
-        test_df["inc_angle"],
-        errors="coerce",
-    ).to_numpy(dtype=np.float64)
+    train_angle = pd.to_numeric(train_df["inc_angle"], errors="coerce").to_numpy(dtype=np.float64)
+    test_angle = pd.to_numeric(test_df["inc_angle"], errors="coerce").to_numpy(dtype=np.float64)
 
     observed = np.isfinite(train_angle)
 
@@ -330,7 +308,7 @@ def main():
         y,
         folds,
         train_angle,
-        test_angle,
+        test_angle
     )
 
     print("\nChecking C4 seed42 predictions...")
@@ -339,7 +317,7 @@ def main():
         train_ids,
         test_ids,
         y,
-        folds,
+        folds
     )
 
     print("Checking C3c seed42/52/62 predictions...")
@@ -349,7 +327,7 @@ def main():
             train_ids,
             test_ids,
             y,
-            folds,
+            folds
         )
 
     missing = [
@@ -373,7 +351,7 @@ def main():
             y,
             folds,
             train_angle,
-            test_angle,
+            test_angle
         )
     else:
         print("\nC4 seed52/62 already exist; reusing.")
@@ -389,14 +367,14 @@ def main():
             train_ids,
             test_ids,
             y,
-            folds,
+            folds
         )
         c4 = load_prediction_pair(
             c4_run_id(seed),
             train_ids,
             test_ids,
             y,
-            folds,
+            folds
         )
 
         c4_oof_list.append(c4["oof"])
@@ -407,26 +385,26 @@ def main():
             c3["oof"],
             seen,
             observed,
-            mean_test_seen_rate,
+            mean_test_seen_rate
         )
         m4 = metrics(
             y,
             c4["oof"],
             seen,
             observed,
-            mean_test_seen_rate,
+            mean_test_seen_rate
         )
 
         rows.append({
             "seed": seed,
             "architecture": "C3c_pool10",
-            **m3,
+            **m3
         })
 
         rows.append({
             "seed": seed,
             "architecture": "C4_pool10_pca90",
-            **m4,
+            **m4
         })
 
         paired_rows.append({
@@ -442,7 +420,7 @@ def main():
                 - m3["unseen_observed_oof_log_loss"],
             "delta_test_like_c4_minus_c3c":
                 m4["test_like_observed_reweighted_log_loss"]
-                - m3["test_like_observed_reweighted_log_loss"],
+                - m3["test_like_observed_reweighted_log_loss"]
         })
 
     results_df = pd.DataFrame(rows)
@@ -462,7 +440,7 @@ def main():
         final_oof,
         seen,
         observed,
-        mean_test_seen_rate,
+        mean_test_seen_rate
     )
 
     pd.DataFrame({
@@ -471,40 +449,28 @@ def main():
         "target": y,
         "prediction": final_oof,
         "model_name": "lightgbm_c",
-        "run_id": FINAL_RUN_ID,
+        "run_id": FINAL_RUN_ID
     }).to_csv(FINAL_OOF_PATH, index=False)
 
     pd.DataFrame({
         "id": test_ids,
         "prediction": final_test,
         "model_name": "lightgbm_c",
-        "run_id": FINAL_RUN_ID,
+        "run_id": FINAL_RUN_ID
     }).to_csv(FINAL_TEST_PATH, index=False)
 
     pd.DataFrame({
         "id": test_ids,
-        "is_iceberg": final_test,
+        "is_iceberg": final_test
     }).to_csv(FINAL_SUBMISSION_PATH, index=False)
 
-    better_oof = int(
-        (paired_df["delta_oof_c4_minus_c3c"] < 0).sum()
-    )
-    better_unseen = int(
-        (paired_df["delta_unseen_c4_minus_c3c"] < 0).sum()
-    )
-    better_test_like = int(
-        (paired_df["delta_test_like_c4_minus_c3c"] < 0).sum()
-    )
+    better_oof = int((paired_df["delta_oof_c4_minus_c3c"] < 0).sum())
+    better_unseen = int((paired_df["delta_unseen_c4_minus_c3c"] < 0).sum())
+    better_test_like = int((paired_df["delta_test_like_c4_minus_c3c"] < 0).sum())
 
-    mean_delta_oof = float(
-        paired_df["delta_oof_c4_minus_c3c"].mean()
-    )
-    mean_delta_unseen = float(
-        paired_df["delta_unseen_c4_minus_c3c"].mean()
-    )
-    mean_delta_test_like = float(
-        paired_df["delta_test_like_c4_minus_c3c"].mean()
-    )
+    mean_delta_oof = float(paired_df["delta_oof_c4_minus_c3c"].mean())
+    mean_delta_unseen = float(paired_df["delta_unseen_c4_minus_c3c"].mean())
+    mean_delta_test_like = float(paired_df["delta_test_like_c4_minus_c3c"].mean())
 
     robust = (
         better_oof >= 2
@@ -537,7 +503,7 @@ def main():
         "mean_delta_unseen_c4_minus_c3c": mean_delta_unseen,
         "mean_delta_test_like_c4_minus_c3c":
             mean_delta_test_like,
-        "decision": decision,
+        "decision": decision
     }]).to_csv(SUMMARY_PATH, index=False)
 
     CONFIG_PATH.write_text(
@@ -550,12 +516,12 @@ def main():
                     "equal-weight probability mean",
                 "decision": decision,
                 "note":
-                    "Terminal Model-C experiment; move on afterwards.",
+                    "Terminal Model-C experiment; move on afterwards."
             },
             indent=2,
-            ensure_ascii=False,
+            ensure_ascii=False
         ),
-        encoding="utf-8",
+        encoding="utf-8"
     )
 
     print("\n" + "=" * 80)
@@ -567,22 +533,10 @@ def main():
     print("\n" + "=" * 80)
     print("C4 MULTI-SEED FINAL CANDIDATE")
     print("=" * 80)
-    print(
-        f"OOF       : "
-        f"{final_metrics['overall_oof_log_loss']:.6f}"
-    )
-    print(
-        f"Seen      : "
-        f"{final_metrics['seen_group_oof_log_loss']:.6f}"
-    )
-    print(
-        f"Unseen    : "
-        f"{final_metrics['unseen_observed_oof_log_loss']:.6f}"
-    )
-    print(
-        f"Test-like : "
-        f"{final_metrics['test_like_observed_reweighted_log_loss']:.6f}"
-    )
+    print(f"OOF: {final_metrics['overall_oof_log_loss']:.6f}")
+    print(f"Seen: {final_metrics['seen_group_oof_log_loss']:.6f}")
+    print(f"Unseen: {final_metrics['unseen_observed_oof_log_loss']:.6f}")
+    print(f"Test-like: {final_metrics['test_like_observed_reweighted_log_loss']:.6f}")
 
     print("\nRobustness counts:")
     print(f"OOF better       : {better_oof}/3")

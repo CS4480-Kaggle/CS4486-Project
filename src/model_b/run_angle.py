@@ -18,14 +18,12 @@ MODEL_NAME = "simple_cnn_angle_fusion"
 EXPERIMENTS = {
     "c0": {"run_id": "c0_image_only_seed42", "metadata_dim": 0},
     "c1": {"run_id": "c1_image_angle_seed42", "metadata_dim": 1},
-    "c2": {"run_id": "c2_image_angle_missing_seed42", "metadata_dim": 2},
+    "c2": {"run_id": "c2_image_angle_missing_seed42", "metadata_dim": 2}
 }
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(
-        description="Run fold-safe incidence-angle fusion experiments."
-    )
+    parser = argparse.ArgumentParser(description="Run fold-safe incidence-angle fusion experiments.")
     
     parser.add_argument("--experiment", choices=["c0", "c1", "c2", "all"],default="c1")
     parser.add_argument("--epochs", type=int, default=OFFICIAL_NUM_EPOCHS)
@@ -100,14 +98,11 @@ def main():
     print(comparison_df)
 
     if arguments.experiment == "all":
-        suffix = (
-            ""
-            if arguments.epochs == OFFICIAL_NUM_EPOCHS
-            else f"_{arguments.epochs}ep"
-        )
-        comparison_path = metric_dir / f"comparison_angle{suffix}.csv"
+        suffix = "" if arguments.epochs == OFFICIAL_NUM_EPOCHS else f"_{arguments.epochs}ep"
 
+        comparison_path = metric_dir / f"comparison_angle{suffix}.csv"
         comparison_df.to_csv(comparison_path, index=False)
+        
         print("Comparison saved to:", comparison_path)
 
 

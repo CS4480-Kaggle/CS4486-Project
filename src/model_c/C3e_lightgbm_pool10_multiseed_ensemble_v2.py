@@ -14,8 +14,6 @@ This script:
 - averages probabilities from seeds [42, 52, 62];
 - evaluates OOF / seen / unseen / test-like LogLoss;
 - writes a Kaggle-ready submission.
-
-No best-seed selection and no leaderboard-tuned weights.
 """
 
 from pathlib import Path

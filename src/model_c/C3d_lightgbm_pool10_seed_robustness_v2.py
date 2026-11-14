@@ -24,7 +24,7 @@ Seeds 52 and 62:
 
 Only the random seed changes.
 
-This is robustness checking, NOT best-seed selection.
+This is robustness checking.
 """
 
 from pathlib import Path

@@ -139,11 +139,7 @@ def load_module(path, module_name):
 
 
 def clip_prob(x):
-    return np.clip(
-        np.asarray(x, dtype=np.float64),
-        EPS,
-        1.0 - EPS,
-    )
+    return np.clip(np.asarray(x, dtype=np.float64), EPS, 1.0 - EPS)
 
 
 def safe_log_loss(y_true, pred):
@@ -152,13 +148,7 @@ def safe_log_loss(y_true, pred):
     if len(y_true) == 0:
         return np.nan
 
-    return float(
-        log_loss(
-            y_true,
-            clip_prob(pred),
-            labels=[0, 1],
-        )
-    )
+    return float(log_loss(y_true, clip_prob(pred), labels=[0, 1]))
 
 
 # ============================================================
@@ -178,17 +168,10 @@ def extract_image_arrays(df):
     if not (df["band_2"].map(len) == 5625).all():
         raise ValueError("Invalid band_2 length")
 
-    b1 = (
-        np.stack(df["band_1"].to_numpy())
-        .astype(np.float32)
-        .reshape(-1, 75, 75)
-    )
+    b1 = np.stack(df["band_1"].to_numpy()).astype(np.float32).reshape(-1, 75, 75)
 
-    b2 = (
-        np.stack(df["band_2"].to_numpy())
-        .astype(np.float32)
-        .reshape(-1, 75, 75)
-    )
+
+    b2 = np.stack(df["band_2"].to_numpy()).astype(np.float32).reshape(-1, 75, 75)
 
     if (
         not np.isfinite(b1).all()
@@ -199,7 +182,7 @@ def extract_image_arrays(df):
     return {
         "band1": b1,
         "band2": b2,
-        "band_diff": (b1 - b2).astype(np.float32),
+        "band_diff": (b1 - b2).astype(np.float32)
     }
 
 
@@ -236,27 +219,20 @@ def adaptive_pool_mean(images, grid_size, prefix):
     return pd.DataFrame(data).astype(np.float32)
 
 
-def build_c3c_base_features(
-    c1e,
-    df,
-    image_arrays,
-):
+def build_c3c_base_features(c1e, df, image_arrays):
     """
     Build the already-validated C3c representation:
         62 handcrafted + 300 pool10 = 362.
     """
 
-    X = (
-        c1e.build_richer_image_features(df)
-        .reset_index(drop=True)
-        .copy()
-    )
+    X = c1e.build_richer_image_features(df).reset_index(drop=True).copy()
+    
 
     for prefix, images in image_arrays.items():
         pooled = adaptive_pool_mean(
             images,
             GRID_SIZE,
-            prefix,
+            prefix
         )
 
         X = pd.concat(
@@ -264,17 +240,14 @@ def build_c3c_base_features(
                 X,
                 pooled.reset_index(drop=True),
             ],
-            axis=1,
+            axis=1
         )
 
     if X.columns.duplicated().any():
         raise ValueError("Duplicate C3c feature names")
 
     if X.shape[1] != BASE_C3C_FEATURE_COUNT:
-        raise ValueError(
-            f"Expected {BASE_C3C_FEATURE_COUNT} C3c features, "
-            f"got {X.shape[1]}"
-        )
+        raise ValueError(f"Expected {BASE_C3C_FEATURE_COUNT} C3c features, got {X.shape[1]}")
 
     if not np.isfinite(X.to_numpy()).all():
         raise ValueError("Invalid C3c features")

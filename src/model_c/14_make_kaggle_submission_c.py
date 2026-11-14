@@ -6,7 +6,7 @@ from pathlib import Path
 
 from prediction_validation import (
     atomic_write, check_write, checked_ids, checked_probabilities,
-    csv_text, read_csv, read_raw_json, validate_test,
+    csv_text, read_csv, read_raw_json, validate_test
 )
 
 SCRIPT_DIR = Path(__file__).resolve().parent

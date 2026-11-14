@@ -134,7 +134,7 @@ def load_prediction_pair(run_id, train_ids, test_ids, y, folds):
     test_df = validate_test(read_csv(test_path(run_id)), test_ids, run_id)
     return {
         "oof": clip_prob(oof_df["prediction"].to_numpy(dtype=np.float64)),
-        "test": clip_prob(test_df["prediction"].to_numpy(dtype=np.float64)),
+        "test": clip_prob(test_df["prediction"].to_numpy(dtype=np.float64))
     }
 
 
@@ -156,23 +156,13 @@ def build_seen_mask(c1e, y, folds, train_angle, test_angle):
         tr = np.where(folds != fold)[0]
         va = np.where(folds == fold)[0]
 
-        mapping, global_prior = c1e.fit_group_mapping(
-            train_angle[tr], y[tr]
-        )
+        mapping, global_prior = c1e.fit_group_mapping(train_angle[tr], y[tr])
 
-        vg = c1e.encode_group_features(
-            train_angle[va], mapping, global_prior
-        )
-        tg = c1e.encode_group_features(
-            test_angle, mapping, global_prior
-        )
+        vg = c1e.encode_group_features(train_angle[va], mapping, global_prior)
+        tg = c1e.encode_group_features(test_angle, mapping, global_prior)
 
-        oof_seen[va] = (
-            vg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5
-        )
-        test_seen[fold] = (
-            tg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5
-        )
+        oof_seen[va] = (vg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5)
+        test_seen[fold] = (tg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5)
 
     return oof_seen, float(test_seen.mean())
 
@@ -184,16 +174,13 @@ def metrics(y, pred, seen, observed, mean_test_seen_rate):
     seen_loss = safe_log_loss(y[seen], pred[seen])
     unseen_loss = safe_log_loss(y[unseen], pred[unseen])
 
-    test_like = (
-        mean_test_seen_rate * seen_loss
-        + (1.0 - mean_test_seen_rate) * unseen_loss
-    )
+    test_like = (mean_test_seen_rate * seen_loss + (1.0 - mean_test_seen_rate))
 
     return {
         "overall_oof_log_loss": overall,
         "seen_group_oof_log_loss": seen_loss,
         "unseen_observed_oof_log_loss": unseen_loss,
-        "test_like_observed_reweighted_log_loss": test_like,
+        "test_like_observed_reweighted_log_loss": test_like
     }
 
 
@@ -212,38 +199,27 @@ def train_missing_c5_seeds(
     folds,
     train_angle,
     test_angle,
-    seeds_to_train,
+    seeds_to_train
 ):
     if not seeds_to_train:
         return
 
     print("\nExtracting image arrays once...")
-    train_arrays = c5a.load_module(
-        c5a.C4A_SCRIPT, "c4a_inside_c5b"
-    ).extract_image_arrays(train_df)
-    test_arrays = c5a.load_module(
-        c5a.C4A_SCRIPT, "c4a_inside_c5b_test"
-    ).extract_image_arrays(test_df)
+    train_arrays = c5a.load_module(c5a.C4A_SCRIPT, "c4a_inside_c5b").extract_image_arrays(train_df)
+    test_arrays = c5a.load_module(c5a.C4A_SCRIPT, "c4a_inside_c5b_test").extract_image_arrays(test_df)
 
-    # Use a single C4a module instance for all feature construction.
     c4a = load_module(c5a.C4A_SCRIPT, "c4a_for_c5b")
 
     print("Building fixed C3c 362-feature base once...")
-    base_train = c4a.build_c3c_base_features(
-        c1e, train_df, train_arrays
-    )
-    base_test = c4a.build_c3c_base_features(
-        c1e, test_df, test_arrays
-    )
+    base_train = c4a.build_c3c_base_features(c1e, train_df, train_arrays)
+    base_test = c4a.build_c3c_base_features(c1e, test_df, test_arrays)
 
     seed_oof = {
         seed: np.full(len(train_ids), np.nan, dtype=np.float64)
         for seed in seeds_to_train
     }
     seed_test = {
-        seed: np.full(
-            (N_FOLDS, len(test_ids)), np.nan, dtype=np.float64
-        )
+        seed: np.full((N_FOLDS, len(test_ids)), np.nan, dtype=np.float64)
         for seed in seeds_to_train
     }
 
@@ -264,7 +240,7 @@ def train_missing_c5_seeds(
                 train_arrays=train_arrays,
                 test_arrays=test_arrays,
                 outer_train_idx=outer_train_idx,
-                fold=fold,
+                fold=fold
             )
         )
 
@@ -292,7 +268,7 @@ def train_missing_c5_seeds(
                 y,
                 folds,
                 train_angle,
-                test_angle,
+                test_angle
             )
 
             va = result["outer_valid_idx"]
@@ -309,7 +285,7 @@ def train_missing_c5_seeds(
                     result["unseen_observed_loss"],
                 "test_seen_rate": result["test_seen_rate"],
                 "test_like_observed_reweighted_log_loss":
-                    result["test_like"],
+                    result["test_like"]
             })
 
             print(
@@ -335,14 +311,14 @@ def train_missing_c5_seeds(
             "target": y,
             "prediction": poof,
             "model_name": "lightgbm_c",
-            "run_id": run_id,
+            "run_id": run_id
         }).to_csv(oof_path(run_id), index=False)
 
         pd.DataFrame({
             "id": test_ids,
             "prediction": ptest,
             "model_name": "lightgbm_c",
-            "run_id": run_id,
+            "run_id": run_id
         }).to_csv(test_path(run_id), index=False)
 
     new_fold_df = pd.DataFrame(fold_rows)
@@ -364,28 +340,22 @@ def main():
     print("=" * 80)
     print("MODEL C — C5b JOINT-PCA30 3-SEED ROBUSTNESS + ENSEMBLE")
     print("=" * 80)
-    print("Seeds                 :", SEEDS)
-    print("C5 image features     :", EXPECTED_C5_FEATURES)
-    print("Reference             : C4 pool10 + separate PCA90")
-    print("New block             : joint band1/band2 PCA30")
-    print("Prediction directory  :", PRED_DIR)
+    print("Seeds:", SEEDS)
+    print("C5 image features:", EXPECTED_C5_FEATURES)
+    print("Reference: C4 pool10 + separate PCA90")
+    print("New block: joint band1/band2 PCA30")
+    print("Prediction directory:", PRED_DIR)
 
     c1e = load_module(C1E_SCRIPT, "c1e_for_c5b")
     c5a = load_module(C5A_SCRIPT, "c5a_for_c5b")
 
     train_df, test_df, train_ids, test_ids, y, folds = c1e.load_data()
 
-    train_angle = pd.to_numeric(
-        train_df["inc_angle"], errors="coerce"
-    ).to_numpy(dtype=np.float64)
-    test_angle = pd.to_numeric(
-        test_df["inc_angle"], errors="coerce"
-    ).to_numpy(dtype=np.float64)
+    train_angle = pd.to_numeric(train_df["inc_angle"], errors="coerce").to_numpy(dtype=np.float64)
+    test_angle = pd.to_numeric(test_df["inc_angle"], errors="coerce").to_numpy(dtype=np.float64)
 
     observed = np.isfinite(train_angle)
-    seen, mean_test_seen_rate = build_seen_mask(
-        c1e, y, folds, train_angle, test_angle
-    )
+    seen, mean_test_seen_rate = build_seen_mask(c1e, y, folds, train_angle, test_angle)
 
     # --------------------------------------------------------
     # Verify C4 references for all seeds.
@@ -397,7 +367,7 @@ def main():
             train_ids,
             test_ids,
             y,
-            folds,
+            folds
         )
 
     # --------------------------------------------------------
@@ -409,7 +379,7 @@ def main():
         train_ids,
         test_ids,
         y,
-        folds,
+        folds
     )
 
     missing = [
@@ -434,7 +404,7 @@ def main():
             folds=folds,
             train_angle=train_angle,
             test_angle=test_angle,
-            seeds_to_train=missing,
+            seeds_to_train=missing
         )
     else:
         print("\nC5 seed52/62 predictions already exist; reusing.")
@@ -453,35 +423,31 @@ def main():
             train_ids,
             test_ids,
             y,
-            folds,
+            folds
         )
         c5 = load_prediction_pair(
             c5_run_id(seed),
             train_ids,
             test_ids,
             y,
-            folds,
+            folds
         )
 
         c5_oof_list.append(c5["oof"])
         c5_test_list.append(c5["test"])
 
-        m4 = metrics(
-            y, c4["oof"], seen, observed, mean_test_seen_rate
-        )
-        m5 = metrics(
-            y, c5["oof"], seen, observed, mean_test_seen_rate
-        )
+        m4 = metrics(y, c4["oof"], seen, observed, mean_test_seen_rate)
+        m5 = metrics(y, c5["oof"], seen, observed, mean_test_seen_rate)
 
         rows.append({
             "seed": seed,
             "architecture": "C4_pool10_pca90",
-            **m4,
+            **m4
         })
         rows.append({
             "seed": seed,
             "architecture": "C5_c4_plus_joint_pca30",
-            **m5,
+            **m5
         })
 
         paired_rows.append({
@@ -497,7 +463,7 @@ def main():
                 - m4["unseen_observed_oof_log_loss"],
             "delta_test_like_c5_minus_c4":
                 m5["test_like_observed_reweighted_log_loss"]
-                - m4["test_like_observed_reweighted_log_loss"],
+                - m4["test_like_observed_reweighted_log_loss"]
         })
 
     results_df = pd.DataFrame(rows)
@@ -515,9 +481,7 @@ def main():
     final_oof = clip_prob(c5_oof_matrix.mean(axis=0))
     final_test = clip_prob(c5_test_matrix.mean(axis=0))
 
-    final_metrics = metrics(
-        y, final_oof, seen, observed, mean_test_seen_rate
-    )
+    final_metrics = metrics(y, final_oof, seen, observed, mean_test_seen_rate)
 
     pd.DataFrame({
         "id": train_ids,
@@ -525,47 +489,34 @@ def main():
         "target": y,
         "prediction": final_oof,
         "model_name": "lightgbm_c",
-        "run_id": FINAL_RUN_ID,
+        "run_id": FINAL_RUN_ID
     }).to_csv(FINAL_OOF_PATH, index=False)
 
     pd.DataFrame({
         "id": test_ids,
         "prediction": final_test,
         "model_name": "lightgbm_c",
-        "run_id": FINAL_RUN_ID,
+        "run_id": FINAL_RUN_ID
     }).to_csv(FINAL_TEST_PATH, index=False)
 
     pd.DataFrame({
         "id": test_ids,
-        "is_iceberg": final_test,
+        "is_iceberg": final_test
     }).to_csv(FINAL_SUBMISSION_PATH, index=False)
 
     # --------------------------------------------------------
     # Robustness summary.
     # --------------------------------------------------------
     better_oof = int((paired_df["delta_oof_c5_minus_c4"] < 0).sum())
-    better_unseen = int(
-        (paired_df["delta_unseen_c5_minus_c4"] < 0).sum()
-    )
-    better_test_like = int(
-        (paired_df["delta_test_like_c5_minus_c4"] < 0).sum()
-    )
+    better_unseen = int((paired_df["delta_unseen_c5_minus_c4"] < 0).sum())
+    better_test_like = int((paired_df["delta_test_like_c5_minus_c4"] < 0).sum())
 
-    mean_delta_oof = float(
-        paired_df["delta_oof_c5_minus_c4"].mean()
-    )
-    mean_delta_seen = float(
-        paired_df["delta_seen_c5_minus_c4"].mean()
-    )
-    mean_delta_unseen = float(
-        paired_df["delta_unseen_c5_minus_c4"].mean()
-    )
-    mean_delta_test_like = float(
-        paired_df["delta_test_like_c5_minus_c4"].mean()
-    )
+    mean_delta_oof = float(paired_df["delta_oof_c5_minus_c4"].mean())
+    mean_delta_seen = float(paired_df["delta_seen_c5_minus_c4"].mean())
+    mean_delta_unseen = float(paired_df["delta_unseen_c5_minus_c4"].mean())
+    mean_delta_test_like = float(paired_df["delta_test_like_c5_minus_c4"].mean())
 
-    # Same spirit as previous robustness rule: at least 2/3 seed wins
-    # in the important metrics and negative mean paired deltas.
+
     robust = (
         better_oof >= 2
         and better_unseen >= 2
@@ -598,7 +549,7 @@ def main():
         "mean_delta_seen_c5_minus_c4": mean_delta_seen,
         "mean_delta_unseen_c5_minus_c4": mean_delta_unseen,
         "mean_delta_test_like_c5_minus_c4": mean_delta_test_like,
-        "decision": decision,
+        "decision": decision
     }]).to_csv(SUMMARY_PATH, index=False)
 
     CONFIG_PATH.write_text(
@@ -613,12 +564,12 @@ def main():
                 "n_image_features": EXPECTED_C5_FEATURES,
                 "reference_architecture": "C4 pool10 + PCA90",
                 "prediction_directory": str(PRED_DIR),
-                "decision": decision,
+                "decision": decision
             },
             indent=2,
-            ensure_ascii=False,
+            ensure_ascii=False
         ),
-        encoding="utf-8",
+        encoding="utf-8"
     )
 
     # --------------------------------------------------------
@@ -633,22 +584,10 @@ def main():
     print("\n" + "=" * 80)
     print("C5 MULTI-SEED CANDIDATE")
     print("=" * 80)
-    print(
-        f"OOF       : "
-        f"{final_metrics['overall_oof_log_loss']:.6f}"
-    )
-    print(
-        f"Seen      : "
-        f"{final_metrics['seen_group_oof_log_loss']:.6f}"
-    )
-    print(
-        f"Unseen    : "
-        f"{final_metrics['unseen_observed_oof_log_loss']:.6f}"
-    )
-    print(
-        f"Test-like : "
-        f"{final_metrics['test_like_observed_reweighted_log_loss']:.6f}"
-    )
+    print(f"OOF: {final_metrics['overall_oof_log_loss']:.6f}")
+    print(f"Seen: {final_metrics['seen_group_oof_log_loss']:.6f}")
+    print(f"Unseen: {final_metrics['unseen_observed_oof_log_loss']:.6f}")
+    print(f"Test-like: {final_metrics['test_like_observed_reweighted_log_loss']:.6f}")
 
     print("\nRobustness counts:")
     print(f"OOF better       : {better_oof}/3")
@@ -656,10 +595,10 @@ def main():
     print(f"Test-like better : {better_test_like}/3")
 
     print("\nMean paired deltas (C5 - C4):")
-    print(f"OOF       : {mean_delta_oof:+.6f}")
-    print(f"Seen      : {mean_delta_seen:+.6f}")
-    print(f"Unseen    : {mean_delta_unseen:+.6f}")
-    print(f"Test-like : {mean_delta_test_like:+.6f}")
+    print(f"OOF: {mean_delta_oof:+.6f}")
+    print(f"Seen: {mean_delta_seen:+.6f}")
+    print(f"Unseen: {mean_delta_unseen:+.6f}")
+    print(f"Test-like: {mean_delta_test_like:+.6f}")
 
     print("\n" + "=" * 80)
     print("C5B DECISION")
@@ -667,10 +606,10 @@ def main():
     print(decision)
 
     print("\nOutputs:")
-    print("  OOF       :", FINAL_OOF_PATH)
-    print("  Test      :", FINAL_TEST_PATH)
-    print("  Submission:", FINAL_SUBMISSION_PATH)
-    print("  Summary   :", SUMMARY_PATH)
+    print("OOF:", FINAL_OOF_PATH)
+    print("Test:", FINAL_TEST_PATH)
+    print("Submission:", FINAL_SUBMISSION_PATH)
+    print("Summary:", SUMMARY_PATH)
 
 
 if __name__ == "__main__":

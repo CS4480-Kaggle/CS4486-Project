@@ -112,7 +112,7 @@ EXPERIMENTS = {
         "input_config": "mean_3ch",
         "in_channels": 3,
         "model_variant": "wide_24_48_96",
-    },
+    }
 }
 
 

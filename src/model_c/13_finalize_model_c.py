@@ -25,9 +25,7 @@ FOLD_PATH = REPO_ROOT / "artifacts" / "folds.csv"
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Validate and freeze an explicitly selected Model C prediction run."
-    )
+    parser = argparse.ArgumentParser(description="Validate and freeze an explicitly selected Model C prediction run.")
     parser.add_argument("--run-id", default=DEFAULT_RUN_ID,
                         help="Source run ID; default is the accepted C5b ensemble.")
     parser.add_argument("--overwrite", action="store_true",
@@ -50,7 +48,6 @@ def main() -> None:
     final_oof = validate_oof(read_csv(source_oof), train_ids, y, folds, args.run_id)
     final_test = validate_test(read_csv(source_test), test_ids, args.run_id)
 
-    # Do not alter exported probabilities. Clipping below is for the metric only.
     pred = np.clip(final_oof["prediction"].to_numpy(), 1e-7, 1 - 1e-7)
     loss = float(-np.mean(y * np.log(pred) + (1 - y) * np.log1p(-pred)))
     print("=" * 78)
@@ -109,7 +106,7 @@ def main() -> None:
         }
     outputs[manifest_path] = json.dumps(manifest, indent=2, ensure_ascii=False) + "\n"
 
-    # Validate ALL overwrite decisions before changing ANY official file.
+
     statuses = {p: check_write(p, text, args.overwrite) for p, text in outputs.items()}
     for path, text in outputs.items():
         if statuses[path] != "already_identical":

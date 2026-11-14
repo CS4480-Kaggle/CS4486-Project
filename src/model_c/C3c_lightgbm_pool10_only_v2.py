@@ -294,14 +294,14 @@ def main():
         "target": y,
         "prediction": oof_gated,
         "model_name": "lightgbm_c",
-        "run_id": RUN_ID,
+        "run_id": RUN_ID
     })
 
     test_df_out = pd.DataFrame({
         "id": test_ids,
         "prediction": test_pred,
         "model_name": "lightgbm_c",
-        "run_id": RUN_ID,
+        "run_id": RUN_ID
     })
 
     summary_df = pd.DataFrame([{
@@ -317,7 +317,7 @@ def main():
         "test_like_observed_reweighted_log_loss": test_like,
         "mean_fold_log_loss": mean_fold,
         "std_fold_log_loss": std_fold,
-        "mean_test_seen_rate": mean_test_seen_rate,
+        "mean_test_seen_rate": mean_test_seen_rate
     }])
 
     oof_df.to_csv(OUT_OOF_PATH, index=False)
@@ -339,7 +339,7 @@ def main():
             ),
             "test_like_observed_reweighted_log_loss": float(
                 ref["test_like_observed_reweighted_log_loss"]
-            ),
+            )
         })
 
     if C3B_SUMMARY_PATH.exists():
@@ -354,7 +354,7 @@ def main():
             ),
             "test_like_observed_reweighted_log_loss": float(
                 c3b["test_like_observed_reweighted_log_loss"]
-            ),
+            )
         })
 
     comparison_rows.append({
@@ -363,7 +363,7 @@ def main():
         "overall_oof_log_loss": overall,
         "seen_group_oof_log_loss": seen_loss,
         "unseen_observed_oof_log_loss": unseen_loss,
-        "test_like_observed_reweighted_log_loss": test_like,
+        "test_like_observed_reweighted_log_loss": test_like
     })
 
     comparison = pd.DataFrame(comparison_rows)
@@ -399,13 +399,10 @@ def main():
         "grid_size": 10,
         "representations": ["band1", "band2", "band1-band2"],
         "angle_logic": "unchanged from C1e",
-        "lightgbm_params": "unchanged from C1e",
+        "lightgbm_params": "unchanged from C1e"
     }
 
-    OUT_CONFIG_PATH.write_text(
-        json.dumps(config, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
+    OUT_CONFIG_PATH.write_text(json.dumps(config, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print("\n" + "=" * 78)
     print("C3c POOL10-ONLY RESULT")
@@ -422,21 +419,17 @@ def main():
         "overall_oof_log_loss",
         "seen_group_oof_log_loss",
         "unseen_observed_oof_log_loss",
-        "test_like_observed_reweighted_log_loss",
+        "test_like_observed_reweighted_log_loss"
     ]
     for col in [
         "delta_oof_vs_c1e",
         "delta_unseen_vs_c1e",
-        "delta_test_like_vs_c1e",
+        "delta_test_like_vs_c1e"
     ]:
         if col in comparison.columns:
             cols.append(col)
 
-    print(
-        comparison[cols]
-        .sort_values("overall_oof_log_loss")
-        .to_string(index=False)
-    )
+    print(comparison[cols].sort_values("overall_oof_log_loss").to_string(index=False))
 
     print("\nPer-fold:")
     print(
@@ -445,7 +438,7 @@ def main():
             "gated_log_loss",
             "seen_gated_log_loss",
             "unseen_observed_gated_log_loss",
-            "test_like_observed_reweighted_log_loss",
+            "test_like_observed_reweighted_log_loss"
         ]].to_string(index=False)
     )
 

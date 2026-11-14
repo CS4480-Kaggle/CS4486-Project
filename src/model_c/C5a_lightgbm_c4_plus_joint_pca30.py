@@ -123,19 +123,11 @@ def build_seen_mask(c1e, y, folds, train_angle, test_angle):
 
         mapping, global_prior = c1e.fit_group_mapping(train_angle[tr], y[tr])
 
-        vg = c1e.encode_group_features(
-            train_angle[va], mapping, global_prior
-        )
-        tg = c1e.encode_group_features(
-            test_angle, mapping, global_prior
-        )
+        vg = c1e.encode_group_features(train_angle[va], mapping, global_prior)
+        tg = c1e.encode_group_features(test_angle, mapping, global_prior)
 
-        oof_seen[va] = (
-            vg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5
-        )
-        test_seen[fold] = (
-            tg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5
-        )
+        oof_seen[va] = (vg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5)
+        test_seen[fold] = (tg["angle_group_seen"].to_numpy(dtype=np.float32) > 0.5)
 
     return oof_seen, float(test_seen.mean())
 
@@ -153,7 +145,7 @@ def metrics(y, pred, seen, observed, mean_test_seen_rate):
         "overall_oof_log_loss": overall,
         "seen_group_oof_log_loss": seen_loss,
         "unseen_observed_oof_log_loss": unseen_loss,
-        "test_like_observed_reweighted_log_loss": test_like,
+        "test_like_observed_reweighted_log_loss": test_like
     }
 
 
@@ -165,7 +157,7 @@ def fit_transform_joint_pca(
     train_arrays,
     test_arrays,
     outer_train_idx,
-    fold,
+    fold
 ):
     """
     Joint PCA on concatenated raw band1 + band2 pixels.
@@ -188,7 +180,7 @@ def fit_transform_joint_pca(
     pca = PCA(
         n_components=JOINT_PCA_COMPONENTS,
         svd_solver="randomized",
-        random_state=JOINT_PCA_RANDOM_BASE + fold,
+        random_state=JOINT_PCA_RANDOM_BASE + fold
     )
 
     pca.fit(train_joint[outer_train_idx])
@@ -212,7 +204,7 @@ def fit_transform_joint_pca(
         "explained_variance_sum": float(explained.sum()),
         "explained_variance_pc1": float(explained[0]),
         "explained_variance_pc10_cumulative": float(explained[:10].sum()),
-        "explained_variance_pc30_cumulative": float(explained[:30].sum()),
+        "explained_variance_pc30_cumulative": float(explained[:30].sum())
     }
 
     return train_df, test_df, diag
@@ -225,7 +217,7 @@ def build_fold_specific_c5_features(
     train_arrays,
     test_arrays,
     outer_train_idx,
-    fold,
+    fold
 ):
     # First build the exact validated C4 representation.
     X_train, X_test, diagnostics = c4a.build_fold_specific_c4a_features(
@@ -234,7 +226,7 @@ def build_fold_specific_c5_features(
         train_arrays=train_arrays,
         test_arrays=test_arrays,
         outer_train_idx=outer_train_idx,
-        fold=fold,
+        fold=fold
     )
 
     if X_train.shape[1] != EXPECTED_C4_FEATURES:
@@ -247,16 +239,16 @@ def build_fold_specific_c5_features(
         train_arrays=train_arrays,
         test_arrays=test_arrays,
         outer_train_idx=outer_train_idx,
-        fold=fold,
+        fold=fold
     )
 
     X_train = pd.concat(
         [X_train.reset_index(drop=True), joint_train.reset_index(drop=True)],
-        axis=1,
+        axis=1
     )
     X_test = pd.concat(
         [X_test.reset_index(drop=True), joint_test.reset_index(drop=True)],
-        axis=1,
+        axis=1
     )
 
     diagnostics = list(diagnostics) + [joint_diag]

@@ -18,7 +18,7 @@ DEFAULT_NUM_EPOCHS = 15
 EXPERIMENTS = {
     "r0": {"label": "image_only", "metadata_dim": 0},
     "r1": {"label": "image_angle", "metadata_dim": 1},
-    "r2": {"label": "image_angle_missing", "metadata_dim": 2},
+    "r2": {"label": "image_angle_missing", "metadata_dim": 2}
 }
 
 
@@ -29,34 +29,22 @@ def parse_arguments():
     parser.add_argument(
         "--experiment",
         choices=["r0", "r1", "r2", "all"],
-        default="r0",
+        default="r0"
     )
     parser.add_argument("--epochs", type=int, default=DEFAULT_NUM_EPOCHS)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument("--learning-rate", type=float, default=DEFAULT_LEARNING_RATE)
     parser.add_argument("--weight-decay", type=float, default=DEFAULT_WEIGHT_DECAY)
     parser.add_argument("--dropout", type=float, default=DEFAULT_DROPOUT)
-    parser.add_argument(
-        "--optimizer",
-        choices=["adam", "adamw"],
-        default="adamw",
-    )
-    parser.add_argument(
-        "--augmentation",
-        choices=["none", "flip"],
-        default="none",
-    )
+    parser.add_argument("--optimizer", choices=["adam", "adamw"], default="adamw")
+    parser.add_argument("--augmentation", choices=["none", "flip"], default="none")
     parser.add_argument("--pretrained", action="store_true")
 
     stem_group = parser.add_mutually_exclusive_group()
     stem_group.add_argument("--standard-stem", action="store_true")
     stem_group.add_argument("--high-resolution-stem", action="store_true")
 
-    parser.add_argument(
-        "--tta",
-        choices=["none", "flip4"],
-        default="none",
-    )
+    parser.add_argument("--tta", choices=["none", "flip4"], default="none")
     parser.add_argument("--run-tag", type=str, default="")
 
     arguments = parser.parse_args()
@@ -93,7 +81,7 @@ def build_run_id(experiment_name, experiment, arguments):
         f"aug{arguments.augmentation}",
         f"tta{arguments.tta}",
         f"{arguments.epochs}ep",
-        f"seed{SEED}",
+        f"seed{SEED}"
     ]
 
     if arguments.run_tag:
@@ -105,9 +93,7 @@ def build_run_id(experiment_name, experiment, arguments):
 def create_submission(run_id, prediction_dir):
     prediction_path = prediction_dir / f"test_{run_id}.csv"
     prediction_df = pd.read_csv(prediction_path)
-    submission_df = prediction_df[["id", "prediction"]].rename(
-        columns={"prediction": "is_iceberg"}
-    )
+    submission_df = prediction_df[["id", "prediction"]].rename(columns={"prediction": "is_iceberg"})
     submission_path = prediction_dir / f"submission_{run_id}.csv"
     submission_df.to_csv(submission_path, index=False)
     print("Submission saved to:", submission_path)
@@ -117,10 +103,7 @@ def update_comparison(metric_dir):
     summary_paths = sorted(metric_dir.glob("summary_r*_resnet18_*.csv"))
     summaries = [pd.read_csv(path) for path in summary_paths]
     comparison_df = pd.concat(summaries, ignore_index=True)
-    comparison_df = comparison_df.sort_values(
-        "overall_oof_log_loss",
-        ascending=True,
-    ).reset_index(drop=True)
+    comparison_df = comparison_df.sort_values("overall_oof_log_loss", scending=True).reset_index(drop=True)
     comparison_path = metric_dir / "comparison_resnet18.csv"
     comparison_df.to_csv(comparison_path, index=False)
     print("ResNet comparison saved to:", comparison_path)
@@ -191,13 +174,13 @@ def main():
             ),
             high_resolution_stem=arguments.high_resolution_stem,
             augmentation=arguments.augmentation,
-            tta=arguments.tta,
+            tta=arguments.tta
         )
         current_summaries.append(summary)
 
     current_comparison = pd.DataFrame(current_summaries).sort_values(
         "overall_oof_log_loss",
-        ascending=True,
+        ascending=True
     ).reset_index(drop=True)
 
     print()

@@ -22,7 +22,7 @@ from model import (
     SimpleCNNCoarsePool5x5,
     SimpleCNNLessDownsample12,
     SimpleCNNLessDownsample12FC32,
-    SimpleCNNLessDownsample10,
+    SimpleCNNLessDownsample10
 )
 
 
@@ -53,7 +53,7 @@ def run_one_fold(
     use_lr_scheduler=False,
     lr_scheduler_factor=0.5,
     lr_scheduler_patience=1,
-    min_learning_rate=1e-5,
+    min_learning_rate=1e-5
     ):
 
     train_images = project_data["train_images"]
@@ -366,7 +366,7 @@ def run_experiment(
             use_lr_scheduler=use_lr_scheduler,
             lr_scheduler_factor=lr_scheduler_factor,
             lr_scheduler_patience=lr_scheduler_patience,
-            min_learning_rate=min_learning_rate,
+            min_learning_rate=min_learning_rate
         )
 
         validation_mask = (fold_ids == fold_number)
