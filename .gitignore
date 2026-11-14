@@ -1,0 +1,37 @@
+__pycache__/
+*.py[cod]
+*.pyd
+
+.ipynb_checkpoints/
+.virtual_documents/
+
+.venv/
+venv/
+.env
+.env.*
+
+.kaggle/
+kaggle.json
+access_token*
+
+# Raw Kaggle competition data must not be committed.
+data/raw/*
+!data/raw/.gitkeep
+
+# Local model checkpoints are reproducible but too large for Git.
+*.pt
+*.pth
+*.ckpt
+
+# One-epoch smoke-test outputs are local validation artifacts.
+artifacts/**/*_1ep.csv
+
+# Keep the interface draft local until the team review is complete.
+/README.md
+/Common_Data_Interface.md
+
+# Documentation is excluded from this integration stage.
+/docs/
+
+Thumbs.db
+.DS_Store
