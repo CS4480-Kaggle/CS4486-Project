@@ -1,0 +1,6 @@
+run_id,input_config,fold,best_epoch,fold_log_loss
+c1_image_angle_seed42,mean_3ch,0,10,0.28436073660850525
+c1_image_angle_seed42,mean_3ch,1,6,0.29340988397598267
+c1_image_angle_seed42,mean_3ch,2,9,0.30178236961364746
+c1_image_angle_seed42,mean_3ch,3,10,0.24045148491859436
+c1_image_angle_seed42,mean_3ch,4,10,0.2663000226020813

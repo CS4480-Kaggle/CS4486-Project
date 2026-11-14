@@ -1,0 +1,2 @@
+run_id,input_config,metadata_dim,model_name,in_channels,overall_oof_log_loss
+c2_image_angle_missing_seed42,mean_3ch,2,simple_cnn_angle_fusion,3,0.2816184461116791

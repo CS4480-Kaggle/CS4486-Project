@@ -1,0 +1,2 @@
+run_id,input_config,in_channels,overall_oof_log_loss
+i1b_difference_3ch_seed42,difference_3ch,3,0.2881021499633789

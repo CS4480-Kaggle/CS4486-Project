@@ -1,0 +1,6 @@
+run_id,input_config,fold,best_epoch,fold_log_loss
+b0_raw_2ch_seed42,raw_2ch,0,10,0.2734965682029724
+b0_raw_2ch_seed42,raw_2ch,1,6,0.2880496084690094
+b0_raw_2ch_seed42,raw_2ch,2,7,0.3322080671787262
+b0_raw_2ch_seed42,raw_2ch,3,10,0.19882582128047943
+b0_raw_2ch_seed42,raw_2ch,4,8,0.273203045129776

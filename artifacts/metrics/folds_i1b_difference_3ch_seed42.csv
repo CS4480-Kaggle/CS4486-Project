@@ -1,0 +1,6 @@
+run_id,input_config,fold,best_epoch,fold_log_loss
+i1b_difference_3ch_seed42,difference_3ch,0,10,0.3084189295768738
+i1b_difference_3ch_seed42,difference_3ch,1,9,0.27987903356552124
+i1b_difference_3ch_seed42,difference_3ch,2,6,0.32315880060195923
+i1b_difference_3ch_seed42,difference_3ch,3,9,0.24284058809280396
+i1b_difference_3ch_seed42,difference_3ch,4,7,0.2862074673175812

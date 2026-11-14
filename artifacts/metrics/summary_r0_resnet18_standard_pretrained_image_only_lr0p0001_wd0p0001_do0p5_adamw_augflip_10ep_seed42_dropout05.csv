@@ -1,0 +1,2 @@
+run_id,input_config,metadata_dim,model_name,model_arch,in_channels,num_epochs,batch_size,learning_rate,optimizer_name,weight_decay,dropout,pretrained,small_stem,augmentation,base_seed,overall_oof_log_loss
+r0_resnet18_standard_pretrained_image_only_lr0p0001_wd0p0001_do0p5_adamw_augflip_10ep_seed42_dropout05,mean_3ch,0,resnet18_pretrained,resnet18,3,10,32,0.0001,adamw,0.0001,0.5,True,False,flip,42,0.29214394092559814
