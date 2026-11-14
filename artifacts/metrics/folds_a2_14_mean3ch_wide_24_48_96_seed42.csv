@@ -1,0 +1,6 @@
+run_id,input_config,model_variant,weight_decay,lr_scheduler,lr_scheduler_factor,lr_scheduler_patience,min_learning_rate,fold,best_epoch,fold_log_loss
+a2_14_mean3ch_wide_24_48_96_seed42,mean_3ch,wide_24_48_96,0.0,False,,,,0,9,0.25403085350990295
+a2_14_mean3ch_wide_24_48_96_seed42,mean_3ch,wide_24_48_96,0.0,False,,,,1,9,0.2948897182941437
+a2_14_mean3ch_wide_24_48_96_seed42,mean_3ch,wide_24_48_96,0.0,False,,,,2,9,0.28415438532829285
+a2_14_mean3ch_wide_24_48_96_seed42,mean_3ch,wide_24_48_96,0.0,False,,,,3,10,0.2239835560321808
+a2_14_mean3ch_wide_24_48_96_seed42,mean_3ch,wide_24_48_96,0.0,False,,,,4,10,0.2821180522441864

@@ -1,0 +1,2 @@
+run_id,input_config,in_channels,model_variant,weight_decay,lr_scheduler,lr_scheduler_factor,lr_scheduler_patience,min_learning_rate,overall_oof_log_loss
+a2_14_mean3ch_wide_24_48_96_seed42,mean_3ch,3,wide_24_48_96,0.0,False,,,,0.2678264081478119
