@@ -1,0 +1,13 @@
+{
+  "architecture": "C4 pool10 + separate fold-safe PCA90 + joint band1/band2 fold-safe PCA30",
+  "seeds": [
+    42,
+    52,
+    62
+  ],
+  "ensemble": "equal-weight probability mean",
+  "n_image_features": 482,
+  "reference_architecture": "C4 pool10 + PCA90",
+  "prediction_directory": "C:\\Users\\17996\\OneDrive - CityU(DG) 香港城市大学（东莞）\\桌面\\iceberg\\baseline\\artifacts\\predictions",
+  "decision": "PROMOTE_C5B_OVER_C4B"
+}
